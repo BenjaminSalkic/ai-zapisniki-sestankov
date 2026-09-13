@@ -1,0 +1,781 @@
+<!doctype html>
+<html lang="sl" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>body{margin:0;font:14px system-ui}img{max-width:100%}</style>
+<title>Od transkripta do CRM</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap">
+<style>
+  :root {
+    --ground: #f4f5f6;
+    --surface: #ffffff;
+    --surface-2: #eceef0;
+    --ink: #1a1e24;
+    --ink-2: #3d454f;
+    --muted: #6b7480;
+    --line: #d8dce0;
+    --line-soft: #e6e9ec;
+    --accent: #0f6156;
+    --accent-soft: #e2efec;
+    --block: #a32f24;
+    --block-soft: #f7e7e4;
+    --review: #8a5a06;
+    --review-soft: #faefdd;
+    --info: #4a5666;
+    --info-soft: #e8ebef;
+    --term-bg: #1c2128;
+    --term-ink: #d6dbe2;
+    --shadow: 0 1px 2px rgba(20, 25, 32, .05), 0 8px 24px -16px rgba(20, 25, 32, .28);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --ground: #14171b;
+      --surface: #1b1f24;
+      --surface-2: #23282f;
+      --ink: #e9ecef;
+      --ink-2: #c2c8cf;
+      --muted: #8d97a3;
+      --line: #333a42;
+      --line-soft: #282e35;
+      --accent: #6ec2b2;
+      --accent-soft: #1c302d;
+      --block: #e58d80;
+      --block-soft: #33211f;
+      --review: #dcae63;
+      --review-soft: #302619;
+      --info: #a3adba;
+      --info-soft: #262b32;
+      --term-bg: #0f1216;
+      --term-ink: #cfd6de;
+      --shadow: 0 1px 2px rgba(0, 0, 0, .3), 0 8px 24px -16px rgba(0, 0, 0, .7);
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --ground: #14171b;
+    --surface: #1b1f24;
+    --surface-2: #23282f;
+    --ink: #e9ecef;
+    --ink-2: #c2c8cf;
+    --muted: #8d97a3;
+    --line: #333a42;
+    --line-soft: #282e35;
+    --accent: #6ec2b2;
+    --accent-soft: #1c302d;
+    --block: #e58d80;
+    --block-soft: #33211f;
+    --review: #dcae63;
+    --review-soft: #302619;
+    --info: #a3adba;
+    --info-soft: #262b32;
+    --term-bg: #0f1216;
+    --term-ink: #cfd6de;
+    --shadow: 0 1px 2px rgba(0, 0, 0, .3), 0 8px 24px -16px rgba(0, 0, 0, .7);
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    background: var(--ground);
+    color: var(--ink);
+    font-family: "IBM Plex Sans", ui-sans-serif, system-ui, sans-serif;
+    font-size: 16.5px;
+    line-height: 1.62;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .wrap {
+    max-width: 47rem;
+    margin: 0 auto;
+    padding-inline: 22px;
+    padding-block: 0 72px;
+  }
+
+  /* ---------- masthead ---------- */
+
+  header.masthead {
+    padding-block: 56px 34px;
+    border-bottom: 2px solid var(--ink);
+  }
+
+  .eyebrow {
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+    font-size: .72rem;
+    letter-spacing: .13em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  h1 {
+    font-family: "Newsreader", Georgia, serif;
+    font-weight: 500;
+    font-size: clamp(2.1rem, 6.4vw, 3.1rem);
+    line-height: 1.08;
+    letter-spacing: -.015em;
+    text-wrap: balance;
+    margin: 14px 0 0;
+  }
+
+  .standfirst {
+    font-family: "Newsreader", Georgia, serif;
+    font-size: 1.22rem;
+    line-height: 1.5;
+    color: var(--ink-2);
+    margin: 16px 0 0;
+    max-width: 34em;
+  }
+
+  .byline {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 18px;
+    margin-top: 26px;
+    font-size: .85rem;
+    color: var(--muted);
+  }
+
+  .byline strong { color: var(--ink); font-weight: 600; }
+
+  .repo {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 6px 12px;
+    margin-top: 16px;
+    padding: 11px 14px;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-left: 3px solid var(--accent);
+    border-radius: 2px;
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+    font-size: .84rem;
+    overflow-wrap: anywhere;
+  }
+
+  .repolabel {
+    font-size: .7rem;
+    letter-spacing: .11em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  /* ---------- sections ---------- */
+
+  section { padding-block: 42px 6px; }
+  section + section { border-top: 1px solid var(--line-soft); }
+
+  .qmark {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    margin-bottom: 6px;
+  }
+
+  .qnum {
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+    font-size: .72rem;
+    font-weight: 500;
+    letter-spacing: .1em;
+    color: var(--accent);
+    background: var(--accent-soft);
+    border-radius: 3px;
+    padding: 3px 7px;
+    white-space: nowrap;
+  }
+
+  .qtext {
+    font-size: .85rem;
+    color: var(--muted);
+    font-style: italic;
+  }
+
+  h2 {
+    font-family: "Newsreader", Georgia, serif;
+    font-weight: 500;
+    font-size: clamp(1.55rem, 4vw, 1.95rem);
+    line-height: 1.18;
+    letter-spacing: -.01em;
+    text-wrap: balance;
+    margin: 8px 0 18px;
+  }
+
+  h3 {
+    font-size: .82rem;
+    font-weight: 600;
+    letter-spacing: .07em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin: 32px 0 12px;
+  }
+
+  p { margin: 0 0 16px; max-width: 40em; }
+  a { color: var(--accent); text-decoration-thickness: 1px; text-underline-offset: 2px; }
+  strong { font-weight: 600; }
+
+  .lede {
+    font-size: 1.08rem;
+    color: var(--ink-2);
+  }
+
+  ul, ol { margin: 0 0 16px; padding-left: 1.15em; max-width: 40em; }
+  li { margin-bottom: 9px; }
+  li::marker { color: var(--muted); }
+
+  /* ---------- principles ---------- */
+
+  .principles {
+    list-style: none;
+    padding: 0;
+    margin: 24px 0 8px;
+    display: grid;
+    gap: 14px;
+  }
+
+  .principles li {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-left: 3px solid var(--accent);
+    border-radius: 2px;
+    padding: 15px 18px;
+    margin: 0;
+    max-width: none;
+  }
+
+  .principles b { display: block; margin-bottom: 3px; }
+
+  /* ---------- flow ---------- */
+
+  .flow {
+    list-style: none;
+    padding: 0;
+    margin: 26px 0 10px;
+    counter-reset: step;
+  }
+
+  .flow > li {
+    position: relative;
+    padding: 0 0 24px 44px;
+    margin: 0;
+    max-width: none;
+    counter-increment: step;
+  }
+
+  .flow > li::before {
+    content: counter(step);
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 26px;
+    height: 26px;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    color: var(--accent);
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+    font-size: .78rem;
+    font-weight: 500;
+  }
+
+  .flow > li::after {
+    content: "";
+    position: absolute;
+    left: 13px;
+    top: 30px;
+    bottom: 2px;
+    width: 1px;
+    background: var(--line);
+  }
+
+  .flow > li:last-child::after { display: none; }
+
+  .flow b {
+    display: block;
+    font-size: 1.02rem;
+    line-height: 1.35;
+    margin-bottom: 3px;
+  }
+
+  .flow p { margin: 0; color: var(--ink-2); font-size: .95rem; }
+
+  .branch {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    margin-top: 9px;
+    font-size: .84rem;
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+    color: var(--ink-2);
+    background: var(--surface-2);
+    border-radius: 2px;
+    padding: 5px 10px;
+  }
+
+  .branch span { color: var(--muted); }
+
+  /* ---------- tables ---------- */
+
+  .tablewrap { overflow-x: auto; margin: 20px 0 24px; }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: .93rem;
+    min-width: 32rem;
+  }
+
+  th {
+    text-align: left;
+    font-size: .72rem;
+    letter-spacing: .09em;
+    text-transform: uppercase;
+    color: var(--muted);
+    font-weight: 600;
+    padding: 0 14px 9px 0;
+    border-bottom: 1px solid var(--line);
+  }
+
+  td {
+    padding: 13px 14px 13px 0;
+    border-bottom: 1px solid var(--line-soft);
+    vertical-align: top;
+    color: var(--ink-2);
+  }
+
+  td:first-child { color: var(--ink); font-weight: 500; white-space: nowrap; }
+  td.wrapok { white-space: normal; }
+  tr:last-child td { border-bottom: none; }
+
+  /* ---------- code ---------- */
+
+  pre {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 3px;
+    padding: 16px 18px;
+    overflow-x: auto;
+    margin: 20px 0 24px;
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+    font-size: .83rem;
+    line-height: 1.65;
+    color: var(--ink-2);
+  }
+
+  code {
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+    font-size: .88em;
+    background: var(--surface-2);
+    padding: 1px 5px;
+    border-radius: 2px;
+  }
+
+  pre code { background: none; padding: 0; font-size: 1em; }
+
+  .term {
+    background: var(--term-bg);
+    border: none;
+    color: var(--term-ink);
+  }
+
+  .term .b { color: #f08a7c; }
+  .term .r { color: #e0b268; }
+  .term .dim { color: #7d8794; }
+
+  /* ---------- prompt block ---------- */
+
+  blockquote.prompt {
+    margin: 20px 0 24px;
+    padding: 18px 20px;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-top: 3px solid var(--accent);
+    border-radius: 2px;
+  }
+
+  blockquote.prompt p { margin: 0 0 10px; font-size: .95rem; }
+  blockquote.prompt p:last-child { margin-bottom: 0; }
+  blockquote.prompt ol { margin: 0; font-size: .95rem; }
+
+  /* ---------- severity legend ---------- */
+
+  .sev {
+    display: inline-block;
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+    font-size: .74rem;
+    font-weight: 500;
+    padding: 2px 7px;
+    border-radius: 2px;
+    white-space: nowrap;
+  }
+
+  .sev.block { color: var(--block); background: var(--block-soft); }
+  .sev.review { color: var(--review); background: var(--review-soft); }
+  .sev.info { color: var(--info); background: var(--info-soft); }
+
+  /* ---------- callout ---------- */
+
+  .note {
+    background: var(--accent-soft);
+    border-radius: 3px;
+    padding: 16px 19px;
+    margin: 24px 0;
+    font-size: .95rem;
+  }
+
+  .note p { margin: 0; max-width: none; }
+  .note p + p { margin-top: 10px; }
+
+  /* ---------- footer ---------- */
+
+  footer {
+    margin-top: 46px;
+    padding-top: 26px;
+    border-top: 1px solid var(--line);
+    font-size: .92rem;
+    color: var(--ink-2);
+  }
+
+  footer h3 { margin-top: 0; }
+
+  @media (max-width: 480px) {
+    body { font-size: 16px; }
+    header.masthead { padding-block: 38px 28px; }
+    .flow > li { padding-left: 38px; }
+  }
+</style>
+
+
+<style>
+  @page { size: A4; margin: 12mm 13mm; }
+  @media print {
+    body { background: #fff !important; font-size: 8.7pt; line-height: 1.29; }
+    .wrap { max-width: none; padding-inline: 0; padding-block: 0 0; }
+    section { break-inside: auto; padding-block: 7px 2px; }
+    h1 { font-size: 20pt; }
+    h2 { font-size: 12.5pt; margin: 2px 0 7px; }
+    h3 { margin: 16px 0 7px; }
+    p { margin-bottom: 6px; max-width: none; }
+    .standfirst { font-size: 11pt; margin-top: 10px; }
+    .lede { font-size: 1rem; }
+    .byline { margin-top: 14px; }
+    .repo { margin-top: 10px; padding: 7px 10px; }
+    header.masthead { padding-block: 0 16px; }
+    ul, ol { margin-bottom: 9px; }
+    li { margin-bottom: 3px; }
+    .principles { gap: 8px; margin: 12px 0 4px; }
+    .principles li { padding: 9px 12px; }
+    .flow > li { padding-bottom: 9px; break-inside: avoid; }
+    pre { margin: 8px 0 10px; padding: 8px 10px; font-size: 7pt; line-height: 1.4; }
+    td, th { padding-top: 4px; padding-bottom: 4px; }
+    table { font-size: 8.7pt; }
+    .tablewrap { margin: 8px 0 9px; }
+    blockquote.prompt { margin: 9px 0 11px; padding: 9px 11px; }
+    .note { margin: 10px 0; padding: 9px 12px; }
+    h2, h3, .qmark { break-after: avoid; }
+    pre, .note, blockquote.prompt, .repo, tr { break-inside: avoid; }
+    a { color: #0f6156; }
+    footer { margin-top: 16px; padding-top: 11px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="masthead">
+    <div class="eyebrow">Praktična naloga · AI in poslovna avtomatizacija</div>
+    <h1>Od transkripta do CRM-ja</h1>
+    <p class="standfirst">Zasnova avtomatizacije, ki iz zapisnika sestanka naredi povzetek, naloge, vpis v poslovni sistem in osnutek follow-up sporočila, ne da bi si pri tem karkoli izmislila.</p>
+    <div class="byline">
+      <span><strong>Benjamin Salkič</strong></span>
+      <span>september 2026</span>
+    </div>
+    <div class="repo">
+      <span class="repolabel">Koda prototipa</span>
+      <a href="https://github.com/BenjaminSalkic/ai-zapisniki-sestankov">github.com/BenjaminSalkic/ai-zapisniki-sestankov</a>
+    </div>
+  </header>
+
+  <section>
+    <h2>Izhodišče</h2>
+    <p class="lede">Ko sem razmišljal, kaj je pri tej nalogi pravzaprav težko, sem ugotovil, da ni težko nič od tistega, kar svetovalec po sestanku počne ročno. Prebrati transkript, izluščiti zahteve, napisati povzetek, vnesti naloge v sistem — vse to model naredi v enem klicu in bo v večini primerov naredil dobro.</p>
+    <p>Težko je nekaj drugega: presoditi, ali je izluščeno res tisto, kar je bilo dogovorjeno. Zato si nisem zastavil cilja, da bi AI naredil vse. Cilj je, da naredi devetdeset odstotkov, človek pa v eni minuti potrdi ali popravi.</p>
+    <p>Razlog za tako zastavitev je preprost. Sistem, ki v petindevetdesetih odstotkih primerov deluje, v petih pa tiho zapiše napačen rok ali napačno ceno, je za uporabnika slabši od ročnega dela, ker nihče ne ve, katerih pet odstotkov je. Ljudje takemu sistemu nehajo zaupati precej hitreje, kot se sistem izboljša, in potem za vsak slučaj vse preverjajo znova. Prihranek izgine, delo pa ostane.</p>
+    <p>Vse ostalo v tem dokumentu izhaja iz dveh odločitev, ki sem ju sprejel na začetku:</p>
+    <ul class="principles">
+      <li><b>Zapis v sistem in vsak stik s stranko gresta skozi človeka.</b> Napačen notranji povzetek nekdo opazi in popravi. Napačna e-pošta stranki je že zunaj.</li>
+      <li><b>Vsak podatek nosi dokaz.</b> Za vsako trditev mora model vrniti dobesedni citat iz transkripta. Citat potem preverimo s kodo, ne z drugim modelom.</li>
+    </ul>
+  </section>
+
+  <section>
+    <div class="qmark"><span class="qnum">Vprašanje 1</span><span class="qtext">Kako bi proces zasnovali od začetka do konca?</span></div>
+    <h2>Potek</h2>
+    <ol class="flow">
+      <li>
+        <b>Prožilec</b>
+        <p>Sestanek se konča in orodje za zapisovanje, karkoli podjetje že uporablja, preko webhooka javi, da je transkript pripravljen. Od tu naprej vse teče asinhrono v vrsti. Nič ne sme biti odvisno od tega, ali je takrat kdo pred zaslonom.</p>
+      </li>
+      <li>
+        <b>Priprava konteksta</b>
+        <p>Datum, udeležence in ID stranke poberemo iz koledarja in CRM-ja, ne iz besedila. To se zdi podrobnost, pa ni: stranko ujamemo po e-poštni domeni udeležencev, tako da model nikoli ne odloča, v čigav zapis pišemo.</p>
+      </li>
+      <li>
+        <b>Ekstrakcija</b>
+        <p>En sam klic modela z vsiljeno JSON shemo. Ven pride povzetek, zahteve stranke, odločitve, naloge z lastniki in roki, tveganja, komercialni signali, osnutek e-pošte in seznam stvari, ki modelu niso bile jasne.</p>
+      </li>
+      <li>
+        <b>Kontrole</b>
+        <p>Sloj navadne kode brez AI-ja, ki preveri citate, roke, lastnike in pragove zaupanja. Vsaka ugotovitev dobi eno od treh stopenj: <span class="sev block">BLOCK</span> <span class="sev review">REVIEW</span> <span class="sev info">INFO</span>.</p>
+        <span class="branch"><span>če pade kontrola →</span> nazaj svetovalcu, v CRM ne gre nič</span>
+      </li>
+      <li>
+        <b>Potrditev</b>
+        <p>Svetovalec dobi v Slacku že izpolnjen paket, s posebej označenimi mesti, ki so padla na kontrolah, in tremi gumbi. Računam na pol minute do minute dela. Če bo trajalo dlje, se tega ljudje ne bodo držali in smo tam, kjer smo bili.</p>
+      </li>
+      <li>
+        <b>Zapis</b>
+        <p>Zapis o sestanku in naloge gredo v CRM preko API-ja, follow-up pa se shrani kot osnutek v svetovalčev poštni predal. Pošlje ga človek. Ne zato, ker model ne bi znal napisati spodobnega sporočila, ampak ker je e-pošta stranki edina stvar v celotni verigi, ki je ni mogoče vzeti nazaj.</p>
+        <span class="branch"><span>če CRM ne dela →</span> outbox, kasnejša ponovna oddaja</span>
+      </li>
+    </ol>
+  </section>
+
+  <section>
+    <div class="qmark"><span class="qnum">Vprašanje 2</span><span class="qtext">Katera orodja in zakaj?</span></div>
+    <h2>Orodja</h2>
+    <p>To je moja izbira, ne edina prava. Pri kombinaciji n8n in Pythona bi razumel ugovor, zato jo pojasnim pod tabelo.</p>
+    <div class="tablewrap">
+      <table>
+        <thead>
+          <tr><th>Plast</th><th>Izbira</th><th>Razlog</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Transkripcija</td>
+            <td class="wrapok">obstoječe orodje za sestanke</td>
+            <td>Teams, Zoom ali Fireflies to že znajo. Lasten Whisper bi imel smisel samo, če posnetki ne smejo iz hiše.</td>
+          </tr>
+          <tr>
+            <td>Orkestracija</td>
+            <td class="wrapok">n8n (self-hosted)</td>
+            <td>Vizualen potek, vgrajeni webhooki in ponovni poskusi, predvsem pa lahko kasneje kdo, ki ni razvijalec, sam doda korak ali zamenja kanal. Za popoln nadzor bi vzel Python in Temporal, a bi do prve uporabne verzije prišel precej počasneje.</td>
+          </tr>
+          <tr>
+            <td>Model</td>
+            <td class="wrapok">Claude Opus 5</td>
+            <td>Structured outputs, spodobna slovenščina in dovolj velik kontekst, da gre cel transkript notri brez rezanja. Če bi bil strošek problem, bi rutinske sestanke pognal na Sonnetu in Opus pustil za kompleksne.</td>
+          </tr>
+          <tr>
+            <td>Kontrole</td>
+            <td class="wrapok">navaden Python</td>
+            <td>Ali se citat pojavi v besedilu in ali je datum za datumom sestanka, sta vprašanji, ki imata en sam pravilen odgovor. Za to ne rabim modela.</td>
+          </tr>
+          <tr>
+            <td>Potrditev</td>
+            <td class="wrapok">Slack</td>
+            <td>Svetovalci so tam. Nova aplikacija pomeni novo navado, ki je ni.</td>
+          </tr>
+          <tr>
+            <td>Stanje</td>
+            <td class="wrapok">Postgres</td>
+            <td>Vsak sestanek ima status. Brez tega ne veš, kaj visi, in ne moreš ničesar pognati še enkrat.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Kje je meja med n8n in Pythonom</h3>
+    <p>Na prvi pogled se podvajata, po mojem pa se ne. n8n sem izbral za vodovod: webhook ob koncu sestanka, branje konteksta, vrsta in ponovni poskusi, Slack sporočilo z gumbi, čakanje na potrditev, klic nazaj. Python pa za logiko: shemo, prompt, klic modela, preverjanje citatov, poslovna pravila, razrešitev imen v ID-je, idempotenco in outbox.</p>
+    <p>V produkciji bi bil paket iz prototipa izpostavljen kot dva klica, ki ju n8n uporabi:</p>
+<pre><code>POST /extract   transkript + kontekst  →  izvleček + ugotovitve kontrol
+POST /commit    potrjen izvleček       →  zapis v CRM + osnutek e-pošte</code></pre>
+    <p>Meja teče tam, kjer teče razlika v tem, kako se stvari spreminjajo. Prompt in kontrole je treba verzionirati, pokriti s testi in pregledati, preden gredo v produkcijo, česar v vizualnem urejevalniku ni mogoče početi resno. Vodovod pa se spreminja pogosto in navadno tako, da za to ne bi smel biti potreben razvijalec: drug kanal za potrditev, dodatno polje, drug prejemnik.</p>
+  </section>
+
+  <section>
+    <div class="qmark"><span class="qnum">Vprašanje 3</span><span class="qtext">Kako AI pridobi strukturirane podatke?</span></div>
+    <h2>Ekstrakcija in shema</h2>
+    <p>Namesto da bi model prosil za JSON in potem upal, mu shemo vsilimo preko API-ja. Odgovor je s tem zagotovo veljaven JSON s pravimi polji in tipi. Sliši se kot malenkost, v praksi pa odpade cel razred sitnosti: manjkajoča polja, JSON zavit v markdown, niz tam, kjer pričakuješ število.</p>
+
+<pre><code>response = client.messages.parse(
+    model="claude-opus-5",
+    system=SYSTEM_PROMPT,            # stabilen -&gt; prompt caching
+    messages=[{"role": "user", "content": user_prompt}],
+    output_format=MeetingRecord,     # Pydantic shema
+)
+record = response.parsed_output      # validiran objekt, ne niz</code></pre>
+
+    <p>Prompt je krajši, kot sem pričakoval. Večino dela opravi shema, prompt pa skrbi predvsem za to, da model ne zapolnjuje praznin:</p>
+    <blockquote class="prompt">
+      <p>Si natančen analitik sestankov. Tvoja naloga je <strong>ekstrakcija, ne interpretacija</strong>.</p>
+      <ol>
+        <li>Uporabljaj izključno informacije iz transkripta.</li>
+        <li>Če podatka ni, vrni <code>null</code> ali prazen seznam. <strong>Prazno polje je pravilen odgovor; izmišljen podatek je najhujša možna napaka.</strong></li>
+        <li>Vsako trditev podpri z <code>evidence.quote</code>, dobesednim odlomkom, kopiranim znak za znak, dolgim vsaj 25 znakov.</li>
+        <li>Odgovorno osebo navedi samo, če je bila izrecno določena. „Nekdo bo pogledal“ ni odgovorna oseba.</li>
+        <li>Roke pretvori v absolutne datume glede na datum sestanka. Ohlapnih rokov ne ugibaj, pusti <code>null</code> in dodaj opombo v <code>unclear_points</code>.</li>
+        <li>Zneskov in imen ne zaokrožuj in ne popravljaj.</li>
+      </ol>
+    </blockquote>
+    <p>Drugo točko sem moral napisati dvakrat. V prvem osnutku je pisalo nekaj v smislu „če nisi prepričan, podaj najboljšo oceno“, kar je pri tej nalogi natanko narobe. Model, ki ocenjuje, bo ocenil tudi rok, ki ga nihče ni izrekel.</p>
+
+    <h3>Izsek iz strukture</h3>
+<pre><code>{
+  "action_items": [{
+    "title": "Izvesti pilot in predstaviti rezultate natančnosti",
+    "owner_name": "Marko Zupan",
+    "due_date": "2026-09-30",
+    "priority": "high",
+    "evidence": {
+      "quote": "Rezultate pilota lahko predstavim do konca septembra, recimo tridesetega.",
+      "speaker": "Marko Zupan"
+    }
+  }],
+  "commercial": { "budget_mentioned": "6.000 EUR fiksno za pilot", "evidence": {…} },
+  "unclear_points": ["Rok za pošiljanje predloga pogodbe ni bil izrecno dogovorjen."],
+  "overall_confidence": 0.89
+}</code></pre>
+    <p>Polji <code>evidence</code> in <code>unclear_points</code> nista tam zaradi lepšega. Prvo uporabi naslednji korak, drugo pa pride svetovalcu pred oči.</p>
+  </section>
+
+  <section>
+    <div class="qmark"><span class="qnum">Vprašanje 4</span><span class="qtext">Kako podatke zapišemo v poslovni sistem?</span></div>
+    <h2>Zapis preko API-ja</h2>
+    <p>Po potrditvi gresta ven dva klica, <code>POST /v1/accounts/{id}/meeting-notes</code> in <code>POST /v1/tasks</code> za vsako nalogo. Bolj kot to, kaj v njiju je, se mi zdi zanimivo, česa ni.</p>
+    <p>Model ne napiše nobenega ID-ja. Vrne ime, recimo „Marko Zupan“, sistem pa ga poišče v kadrovskem imeniku in šele takrat nastane <code>owner_id</code>. Isto velja za ID stranke in za šifrante statusov. Če imena v imeniku ni, naloga ne gre skozi, ampak gre na pregled, skupaj s predlogom najbližjega ujemanja.</p>
+    <p>Vsak POST nosi idempotenčni ključ, ki je hash sestanka, tipa zapisa in vsebine. Brez tega je vsak timeout potencialna podvojena naloga, in ravno timeouti so tisto, kar se v praksi dogaja najpogosteje.</p>
+    <p>Vsak zapis nosi še sha256 transkripta, verzijo prompta, ime modela in e-pošto tistega, ki ga je potrdil. Čez tri mesece, ko bo kdo vprašal, od kod je prišla neka naloga, bo to edini način, da mu odgovoriš.</p>
+    <p>Naloge, katerih lastnik je pri stranki, ostanejo zapisane v zapisu o sestanku in se ne odpirajo kot interni taski.</p>
+  </section>
+
+  <section>
+    <div class="qmark"><span class="qnum">Vprašanje 5</span><span class="qtext">Kako preprečimo napačne ali izmišljene podatke?</span></div>
+    <h2>Kontrole</h2>
+    <p>To je del, ki mi je vzel največ časa, in po mojem tudi najbolj zanimiv del naloge.</p>
+    <p>Splošen nasvet se glasi „dodaj človeka v zanko“, kar drži, samo po sebi pa ne zadošča. Če človeku pokažeš lepo oblikovan povzetek s petnajstimi postavkami, jih bo po tretjem sestanku potrdil, ne da bi jih prebral. Zato mora sistem sam znati povedati, kateri postavki ne zaupa, in človeka usmeriti tja.</p>
+    <p>Pet plasti, od najcenejše proti najdražji:</p>
+    <div class="tablewrap">
+      <table>
+        <thead>
+          <tr><th>Plast</th><th>Kaj ujame</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="wrapok">Shema<br><span style="color:var(--muted);font-weight:400">structured outputs</span></td>
+            <td>Napačno obliko, manjkajoča polja, izmišljene vrednosti šifrantov. Po konstrukciji nemogoče.</td>
+          </tr>
+          <tr>
+            <td class="wrapok">Preverjanje citatov</td>
+            <td>Vsak <code>evidence.quote</code> mora biti v transkriptu, ujemanje je normalizirano s pragom 0,90.</td>
+          </tr>
+          <tr>
+            <td class="wrapok">Poslovna pravila</td>
+            <td>Lastnik obstaja v imeniku. Rok ni pred sestankom in ni več kot leto naprej. Datum je veljaven. Komercialni podatek ima citat.</td>
+          </tr>
+          <tr>
+            <td class="wrapok">Pragovi</td>
+            <td><code>overall_confidence &lt; 0,75</code>, naloga brez lastnika ali roka in vsak komercialni podatek gredo obvezno na pregled.</td>
+          </tr>
+          <tr>
+            <td class="wrapok">Človeška potrditev</td>
+            <td>Obvezna pred zapisom v CRM in pred vsakim stikom s stranko.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <p>Jedro je druga vrstica. Model, ki si izmisli nalogo, si mora izmisliti tudi citat, ta pa pade na navadnem iskanju po besedilu. Kontrola ne stane nič in ne uporablja AI-ja, kar mi je pomembno: idejo, da bi halucinacije lovil z drugim klicem modela, sem zavrgel, ker problem samo premakne za korak naprej.</p>
+
+    <h3>Preizkus</h3>
+    <p>Da to ni ostalo na papirju, sem v izvleček podtaknil nalogo, ki je v transkriptu ni, podpis pogodbe za 45.000 evrov. Kontrole jo ujamejo štirikrat:</p>
+<pre class="term"><code><span class="b">[BLOCK ]</span> action_items[4]: Citata ni v transkriptu (možna halucinacija): 'Strinjamo se s ceno…'
+<span class="b">[BLOCK ]</span> action_items[4]: Odgovorne osebe 'Janez Kranjc' ni v imeniku zaposlenih.
+<span class="b">[BLOCK ]</span> action_items[4]: Rok 2026-09-01 je pred datumom sestanka 2026-09-08.
+<span class="b">[BLOCK ]</span> commercial:      Citata ni v transkriptu (možna halucinacija): 'Celotna implementacija…'
+<span class="r">[REVIEW]</span> overall_confidence: Nizka zanesljivost izvlečka (0.62).
+<span class="dim">=== Status: blocked ===</span></code></pre>
+
+    <div class="note">
+      <p>Kar tu manjka in bi bilo prvo, kar bi naredil naslednje: eval set tridesetih do petdesetih resničnih transkriptov z ročno označenimi pravilnimi izhodi, ki teče ob vsaki spremembi prompta. Brez tega je vsako popravljanje prompta ugibanje, ki se sliši prepričljivo.</p>
+      <p>Zanimata me dve številki. Koliko pravih nalog sistem zgreši in koliko izmišljenih spusti skozi. Druga je dražja, ker prvo človek opazi sam.</p>
+    </div>
+  </section>
+
+  <section>
+    <div class="qmark"><span class="qnum">Vprašanje 6</span><span class="qtext">Kaj, če kakšen sistem začasno ne deluje?</span></div>
+    <h2>Odpornost na izpade</h2>
+    <p>Vse skupaj stoji na eni odločitvi: transkript je izvorna resnica, vsak korak pa se da ponoviti iz shranjenega stanja. Dokler to drži, noben izpad ne pomeni, da mora kdo karkoli delati še enkrat ročno.</p>
+    <div class="tablewrap">
+      <table>
+        <thead>
+          <tr><th>Odpove</th><th>Odziv</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Model (API)</td>
+            <td>SDK sam ponovi ob 429 in 5xx. Ob daljšem izpadu gre sestanek v vrsto in se obdela kasneje. Zamuda pri tej nalogi ni škoda, samo svetovalec mora vedeti, da zapisnik še ni pripravljen.</td>
+          </tr>
+          <tr>
+            <td>CRM API</td>
+            <td>Do pet poskusov z eksponentnim odlogom in jitterjem, in to samo za napake, ki so lahko prehodne (429, 5xx, timeout). Če tudi zadnji poskus pade, gre potrjen zapis v outbox na disk in se odda, ko je CRM spet dosegljiv. Idempotenčni ključi poskrbijo, da se nič ne podvoji.</td>
+          </tr>
+          <tr>
+            <td>CRM zavrne (4xx)</td>
+            <td>Ponavljanje nima smisla, ker se ne bo izšlo. Zapis gre v dead-letter in svetovalcu, z navedenim razlogom.</td>
+          </tr>
+          <tr>
+            <td>Slack</td>
+            <td>Nadomestni kanal je e-pošta. Sestanek ostane v stanju <code>awaiting_approval</code>, dokler ga kdo ne obdela.</td>
+          </tr>
+          <tr>
+            <td>Transkripcija</td>
+            <td>Nič ni izgubljeno, posnetek ostane in obdelavo pač ponovimo.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <p>Preizkusil sem samo primer s CRM-jem, ker je edini, ki sem ga znal verodostojno simulirati. Ob ugasnjenem strežniku pipeline odloži tri zapise v outbox, po ponovnem zagonu, s štiridesetimi odstotki namerno vrnjenih napak, pa jih odda vse in nobenega ne podvoji.</p>
+    <p>Zadnja stvar, ki se je na začetku nisem spomnil. Vsak sestanek ima status, od <code>extracted</code> preko <code>awaiting_approval</code> do <code>written</code>, <code>blocked</code> ali <code>partially_written</code>, tako da se da kadarkoli vprašati, kaj visi in zakaj. Najpogostejša odpoved takih sistemov po mojem sploh ni tehnična. Je ta, da nekdo pozabi klikniti <em>Potrdi</em> in tega nihče ne opazi, zato sestanek, ki čaka več kot 48 ur, sproži opomnik.</p>
+  </section>
+
+  <section>
+    <div class="qmark"><span class="qnum">Bonus</span><span class="qtext">Prototip</span></div>
+    <h2>Kaj je dejansko pognano</h2>
+    <p>Prototip je Python paket z eno samo zunanjo odvisnostjo. Napisal sem ga, ker se mi zdi, da se o kontrolah proti halucinacijam veliko lažje pogovarjamo, če jih je mogoče pognati. Vsebuje shemo, prompt, kontrolno plast, orkestrator s CLI-jem, odporen HTTP klient in lažni CRM, ki zna simulirati izpade. To je tisti del, ki bi v produkciji tekel za n8n-ovima klicema <code>/extract</code> in <code>/commit</code>.</p>
+    <div class="repo">
+      <span class="repolabel">Repozitorij</span>
+      <a href="https://github.com/BenjaminSalkic/ai-zapisniki-sestankov">github.com/BenjaminSalkic/ai-zapisniki-sestankov</a>
+    </div>
+    <p>Pognal sem tri scenarije:</p>
+    <div class="tablewrap">
+      <table>
+        <thead><tr><th>Scenarij</th><th>Rezultat</th></tr></thead>
+        <tbody>
+          <tr><td>Normalen potek</td><td>Zapis o sestanku in dve nalogi v CRM. Ponoven <code>approve</code> ne ustvari dvojnikov.</td></tr>
+          <tr><td>Halucinacija</td><td>Štiri <span class="sev block">BLOCK</span> ugotovitve, status <code>blocked</code>, v CRM ne gre nič.</td></tr>
+          <tr><td>CRM ne dela</td><td>Trije poskusi z odlogom, nato outbox. Po ponovnem zagonu vse oddano, nič podvojeno.</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>Česa ni: transkripcije zvoka, prave Slack integracije, avtentikacije in baze, saj je stanje shranjeno kar v JSON datotekah. Prav tako ni pognan klic na pravi API, ker v okolju, kjer sem delal, nisem imel ključa. Koda sledi dokumentirani uporabi SDK-ja, vse ostalo pa teče na shranjenem odgovoru modela. To pišem zato, ker se mi zdi pošteno ločiti, kaj je preverjeno in kaj ne.</p>
+
+    <h3>Kaj bi naredil naslednje</h3>
+    <ol>
+      <li>Eval set na resničnih transkriptih, ker je brez meritve vse ostalo mnenje.</li>
+      <li>Dva tedna v načinu, kjer AI predlaga in človek vedno potrdi, z merjenjem, koliko popravkov je v resnici potrebnih. Šele ta številka pove, ali se stvar splača.</li>
+      <li>Če je delež popravkov nizek, bi za nizko tvegane dele, recimo notranji povzetek in naloge z jasnim lastnikom in rokom, razmislil o samodejni potrditvi. Komercialni podatki in komunikacija s stranko po mojem ostanejo pri človeku tudi potem.</li>
+    </ol>
+  </section>
+
+  <footer>
+    <h3>Opomba o uporabi AI orodij</h3>
+    <p>Nalogo sem delal s Claude Code. Največ mi je pomagal pri pisanju prototipa, se pravi pri delu, kjer sem vnaprej vedel, kaj hočem, in me je zanimala samo hitrost. Zasnovo sem določil sam, predvsem tisti del s citati in ločnico med tem, kar sme napisati model, in tem, kar mora razrešiti sistem.</p>
+    <p>Kjer je bilo treba presojati, prvega predloga nisem vzel. Prvi osnutek prompta je bil preveč popustljiv in bi pri tej nalogi delal natanko narobe, idejo o preverjanju halucinacij z drugim klicem modela pa sem zavrgel in jo nadomestil z navadno primerjavo besedila. Se mi zdi, da je pri teh orodjih to bistveno: uporabna so ravno toliko, kolikor znaš presoditi, kaj ti vrnejo.</p>
+  </footer>
+
+</div>
+
+</body>
+</html>
