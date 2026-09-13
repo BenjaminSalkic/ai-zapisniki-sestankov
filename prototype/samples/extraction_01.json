@@ -1,0 +1,124 @@
+{
+  "meeting_title": "Uvodna delavnica – Alpina Logistika d.o.o.",
+  "client_name": "Alpina Logistika d.o.o.",
+  "participants": ["Ana Kovač", "Marko Zupan", "Peter Novak", "Mojca Jerič"],
+  "summary": "Alpina Logistika tedensko ročno prepisuje približno 300 dobavnic v ERP Pantheon; trije zaposleni za to porabijo skoraj dva dneva. Okoli 70 % dokumentov je PDF po e-pošti, ostalo so slabo berljivi skeni. Ključna zahteva stranke ni zgolj avtomatizacija, ampak kontrolna točka pred knjiženjem – v ERP ne sme iti nič brez potrditve. Dogovorjen je bil pilot na vzorcu 50 dobavnic za fiksnih 6.000 EUR, ločeno od produkcijskega okolja. Stranka pripravi vzorec do 12. 9., rezultate pilota predstavimo do 30. 9. Integracija se zaradi zasedenosti IT ekipe stranke lahko začne šele novembra.",
+  "client_requirements": [
+    {
+      "requirement": "Avtomatizirano branje podatkov iz dobavnic (PDF in skeni) in prenos v ERP Pantheon.",
+      "evidence": {
+        "quote": "naša ekipa vsak teden ročno prepisuje podatke iz dobavnic v ERP",
+        "speaker": "Peter Novak"
+      }
+    },
+    {
+      "requirement": "Obvezna človeška potrditev pred knjiženjem v ERP, dokler stranka ne pridobi zaupanja v sistem.",
+      "evidence": {
+        "quote": "Nič ne sme iti v ERP brez potrditve, dokler si ne pridobimo zaupanja v sistem.",
+        "speaker": "Mojca Jerič"
+      }
+    },
+    {
+      "requirement": "Rešitev mora obvladati mešane vhodne formate – približno 70 % PDF, ostalo skenirani papirji slabe kakovosti.",
+      "evidence": {
+        "quote": "Približno sedemdeset odstotkov je PDF po e-pošti, ostalo so skenirani papirji, ki so včasih grozno berljivi.",
+        "speaker": "Peter Novak"
+      }
+    }
+  ],
+  "decisions": [
+    {
+      "statement": "Izvede se pilot na vzorcu 50 dobavnic, ločeno od produkcijskega okolja.",
+      "evidence": {
+        "quote": "Predlagam, da medtem naredimo pilot na vzorcu. Če nam pošljete petdeset dobavnic, lahko v dveh tednih pokažemo, kakšna je natančnost branja.",
+        "speaker": "Marko Zupan"
+      }
+    },
+    {
+      "statement": "Stranka odobri pilot v vrednosti 6.000 EUR; odobritev je v pristojnosti Mojce Jerič.",
+      "evidence": {
+        "quote": "Šest tisoč za pilot je nekaj, kar lahko odobrim sama. Dogovorjeno.",
+        "speaker": "Mojca Jerič"
+      }
+    }
+  ],
+  "action_items": [
+    {
+      "title": "Pripraviti vzorec 50 dobavnic",
+      "description": "Stranka pripravi in posreduje vzorec 50 dobavnic (PDF in skeni) kot vhod za pilot.",
+      "owner_name": "Peter Novak",
+      "due_date": "2026-09-12",
+      "priority": "high",
+      "evidence": {
+        "quote": "Vzorec pripravim do konca tedna, torej do dvanajstega septembra.",
+        "speaker": "Peter Novak"
+      }
+    },
+    {
+      "title": "Izvesti pilot in predstaviti rezultate natančnosti",
+      "description": "Na prejetem vzorcu izvesti pilot branja dobavnic in predstaviti izmerjeno natančnost.",
+      "owner_name": "Marko Zupan",
+      "due_date": "2026-09-30",
+      "priority": "high",
+      "evidence": {
+        "quote": "Rezultate pilota lahko predstavim do konca septembra, recimo tridesetega.",
+        "speaker": "Marko Zupan"
+      }
+    },
+    {
+      "title": "Poslati zapisnik in predlog pogodbe za pilot",
+      "description": "Poslati zapisnik sestanka in predlog pogodbe za pilot; predlog pogodbe naslovljen na Mojco Jerič.",
+      "owner_name": "Ana Kovač",
+      "due_date": null,
+      "priority": "medium",
+      "evidence": {
+        "quote": "Pošljem vam še zapisnik in predlog pogodbe za pilot.",
+        "speaker": "Ana Kovač"
+      }
+    },
+    {
+      "title": "Pridobiti dokumentacijo API-ja za ERP Pantheon",
+      "description": "Stranka pri zunanjem izvajalcu pridobi dokumentacijo API-ja za Pantheon; predvidoma teden dni.",
+      "owner_name": "Peter Novak",
+      "due_date": null,
+      "priority": "medium",
+      "evidence": {
+        "quote": "Naš ERP je Pantheon in imamo dostop do API-ja, ampak dokumentacijo bo moral dati naš zunanji izvajalec. Za to potrebujem kakšen teden.",
+        "speaker": "Peter Novak"
+      }
+    }
+  ],
+  "risks": [
+    {
+      "statement": "IT ekipa stranke je do konca oktobra zasedena z migracijo strežnika, zato integracija pred novembrom ni mogoča.",
+      "evidence": {
+        "quote": "Naša IT ekipa je do konca oktobra polno zasedena z migracijo na nov strežnik, zato za integracijo pred novembrom ne bodo na voljo.",
+        "speaker": "Peter Novak"
+      }
+    },
+    {
+      "statement": "Kakovost skeniranih dokumentov je mestoma slaba, kar lahko zniža natančnost branja.",
+      "evidence": {
+        "quote": "ostalo so skenirani papirji, ki so včasih grozno berljivi",
+        "speaker": "Peter Novak"
+      }
+    }
+  ],
+  "commercial": {
+    "budget_mentioned": "6.000 EUR fiksno za pilot; cena celotne implementacije ni bila podana",
+    "timeline_mentioned": "pilot do 30. 9. 2026, integracija ne pred novembrom 2026",
+    "upsell_opportunity": "Celotna implementacija integracije z ERP Pantheon po uspešnem pilotu.",
+    "evidence": {
+      "quote": "Za pilot govorimo o šest tisoč evrih, fiksno. Za celotno implementacijo pa ne bi rada ugibala, dokler ne vidimo rezultatov pilota in dokumentacije ERP-ja.",
+      "speaker": "Ana Kovač"
+    }
+  },
+  "sentiment": "positive",
+  "followup_email_draft": "Spoštovani gospod Novak, spoštovana gospa Jerič,\n\nhvala za današnji sestanek. Na kratko povzemam, kar smo se dogovorili.\n\nIzhodišče: vaša ekipa tedensko ročno prepisuje približno 300 dobavnic v Pantheon, pri čemer je okoli 70 % dokumentov v PDF obliki, ostalo pa skenirani papirji. Ključna zahteva je, da v ERP brez potrditve ne gre noben podatek.\n\nDogovorjeni naslednji koraki:\n1. Vi pripravite vzorec 50 dobavnic do 12. 9. 2026.\n2. Marko Zupan na tem vzorcu izvede pilot in predstavi izmerjeno natančnost branja do 30. 9. 2026.\n3. Pilot izvedemo ločeno od produkcijskega okolja, cena pilota je 6.000 EUR fiksno.\n4. Integracija z ERP se lahko začne po novembru, ko bo vaša IT ekipa na voljo.\n\nV ločenem sporočilu pošiljam še zapisnik sestanka in predlog pogodbe za pilot, ki ga naslavljam na gospo Jerič. Prav tako nas zanima dokumentacija API-ja za Pantheon, ko jo boste prejeli od zunanjega izvajalca.\n\nČe sem karkoli napačno povzela, mi prosim sporočite.\n\nLep pozdrav,\nAna Kovač",
+  "unclear_points": [
+    "Rok za pošiljanje predloga pogodbe ni bil izrecno dogovorjen.",
+    "Rok za pridobitev dokumentacije API-ja Pantheon je naveden ohlapno ('kakšen teden'), konkreten datum ni bil določen.",
+    "Cena celotne implementacije ni bila podana in je ne smemo navajati v follow-up sporočilu."
+  ],
+  "overall_confidence": 0.89
+}

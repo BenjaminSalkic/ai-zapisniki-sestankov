@@ -1,0 +1,45 @@
+Sestanek: Uvodni delavnica – Alpina Logistika d.o.o.
+Datum: 2026-09-08, 10:00–10:45
+Udeleženci: Ana Kovač (svetovanje), Marko Zupan (svetovanje), Peter Novak (Alpina Logistika, vodja operative), Mojca Jerič (Alpina Logistika, finance)
+
+Ana Kovač: Hvala, ker ste si vzeli čas. Predlagam, da najprej povzameva, kje ste danes, potem pa se dogovorimo o naslednjih korakih.
+
+Peter Novak: Ja. Največji problem je, da naša ekipa vsak teden ročno prepisuje podatke iz dobavnic v ERP. Govorimo o približno tristo dobavnicah na teden, in trije ljudje s tem porabijo skoraj dva dneva.
+
+Marko Zupan: Kako te dobavnice pridejo do vas? Papirno ali digitalno?
+
+Peter Novak: Mešano. Približno sedemdeset odstotkov je PDF po e-pošti, ostalo so skenirani papirji, ki so včasih grozno berljivi.
+
+Mojca Jerič: Dodala bi še, da nas najbolj skrbi točnost. Če se zmoti človek, to ujamemo pri kontroli. Če se zmoti sistem in nihče ne gleda, imamo lahko napačno zaračunano storitev, in to je problem s stranko.
+
+Ana Kovač: Razumem. Torej zahteva ni samo avtomatizacija, ampak avtomatizacija s kontrolno točko pred knjiženjem.
+
+Mojca Jerič: Točno tako. Nič ne sme iti v ERP brez potrditve, dokler si ne pridobimo zaupanja v sistem.
+
+Peter Novak: Še nekaj. Naš ERP je Pantheon in imamo dostop do API-ja, ampak dokumentacijo bo moral dati naš zunanji izvajalec. Za to potrebujem kakšen teden.
+
+Marko Zupan: Prav. Predlagam, da medtem naredimo pilot na vzorcu. Če nam pošljete petdeset dobavnic, lahko v dveh tednih pokažemo, kakšna je natančnost branja.
+
+Peter Novak: To se mi zdi smiselno. Vzorec pripravim do konca tedna, torej do dvanajstega septembra.
+
+Ana Kovač: Odlično. Marko, ti prevzameš pripravo pilota, ko dobimo vzorec?
+
+Marko Zupan: Ja, prevzamem. Rezultate pilota lahko predstavim do konca septembra, recimo tridesetega.
+
+Mojca Jerič: Kaj pa strošek? Nekje moramo vedeti, o kakšnem redu velikosti govorimo, da to spravim skozi upravo.
+
+Ana Kovač: Za pilot govorimo o šest tisoč evrih, fiksno. Za celotno implementacijo pa ne bi rada ugibala, dokler ne vidimo rezultatov pilota in dokumentacije ERP-ja.
+
+Mojca Jerič: Šest tisoč za pilot je nekaj, kar lahko odobrim sama. Dogovorjeno.
+
+Peter Novak: Eno tveganje naj omenim. Naša IT ekipa je do konca oktobra polno zasedena z migracijo na nov strežnik, zato za integracijo pred novembrom ne bodo na voljo.
+
+Ana Kovač: Hvala, to je pomembno. To pomeni, da pilot delamo ločeno od produkcijskega okolja.
+
+Peter Novak: Da, to je edina realna možnost.
+
+Ana Kovač: Povzamem: vi pripravite vzorec petdesetih dobavnic do dvanajstega septembra, Marko pripravi in predstavi pilot do tridesetega septembra, pilot stane šest tisoč evrov, integracija pa se lahko začne šele novembra. Pošljem vam še zapisnik in predlog pogodbe za pilot.
+
+Mojca Jerič: Se strinjam. Prosim, da predlog pogodbe pošljete meni.
+
+Ana Kovač: Bom. Hvala vsem.

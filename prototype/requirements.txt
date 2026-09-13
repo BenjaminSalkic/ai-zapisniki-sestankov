@@ -1,0 +1,3 @@
+# Edina zunanja odvisnost. Pydantic pride zraven z anthropic SDK.
+# Mock CRM, retry logika in validacija uporabljajo samo standardno knjiznico.
+anthropic>=1.5.0
