@@ -12,22 +12,29 @@ Prototip je v [`prototype/`](prototype/), navodila za zagon v
 
 ## Izhodišče
 
-Svetovalec po sestanku opravi pet opravil: prebere transkript, izlušči zahteve,
-napiše povzetek, vnese naloge v sistem in sestavi follow-up. Od tega so štiri
-mehanska, eno pa ni: **presoja, ali je izluščeno res tisto, kar je bilo
-dogovorjeno.** Zato cilj ni »AI naredi vse«, ampak: AI naredi 90 % dela, človek
-pa v eni minuti potrdi ali popravi. Sistem, ki v 95 % deluje in v 5 % tiho
-zapiše napačen rok stranki, je slabši od ročnega dela — ker nihče ne ve, katerih
-5 % je.
+Ko sem razmišljal, kaj je pri tej nalogi pravzaprav težko, sem ugotovil, da ni
+težko nič od tistega, kar svetovalec po sestanku počne ročno. Prebrati
+transkript, izluščiti zahteve, napisati povzetek, vnesti naloge v sistem — vse
+to model naredi v enem klicu in bo v večini primerov naredil dobro.
 
-Iz tega sledita dve načeli, ki držita celotno zasnovo:
+Težko je nekaj drugega: presoditi, ali je izluščeno res tisto, kar je bilo
+dogovorjeno. Zato si nisem zastavil cilja, da bi AI naredil vse. Cilj je, da
+naredi devetdeset odstotkov, človek pa v eni minuti potrdi ali popravi.
 
-1. **Zapis v sistem in komunikacija s stranko gresta vedno skozi človeka.**
-   Notranji povzetek je poceni napaka, e-pošta stranki ni.
-2. **Vsak podatek nosi dokaz.** Model mora za vsako trditev vrniti dobesedni
-   citat iz transkripta, ki ga nato programsko preverimo.
+Razlog za tako zastavitev je preprost. Sistem, ki v petindevetdesetih odstotkih
+primerov deluje, v petih pa tiho zapiše napačen rok ali napačno ceno, je za
+uporabnika slabši od ročnega dela, ker nihče ne ve, katerih pet odstotkov je.
+Ljudje takemu sistemu nehajo zaupati precej hitreje, kot se sistem izboljša, in
+potem za vsak slučaj vse preverjajo znova. Prihranek izgine, delo pa ostane.
 
-## 1. Potek od začetka do konca
+Vse ostalo izhaja iz dveh odločitev, ki sem ju sprejel na začetku:
+
+1. **Zapis v sistem in vsak stik s stranko gresta skozi človeka.** Napačen
+   notranji povzetek nekdo opazi in popravi. Napačna e-pošta stranki je že zunaj.
+2. **Vsak podatek nosi dokaz.** Za vsako trditev mora model vrniti dobesedni
+   citat iz transkripta. Citat potem preverimo s kodo, ne z drugim modelom.
+
+## 1. Potek
 
 ```
 Sestanek ──► Transkript ──► Priprava ──► Ekstrakcija ──► Kontrole ──► Potrditev ──► Zapis
@@ -38,65 +45,71 @@ Sestanek ──► Transkript ──► Priprava ──► Ekstrakcija ──►
                                                      svetovalec popravi            outbox → replay
 ```
 
-1. **Prožilec.** Sestanek se konča, orodje za zapisovanje (Teams / Zoom / Fireflies)
-   preko webhooka javi, da je transkript pripravljen. Vse naprej teče asinhrono v
-   vrsti — nič ni vezano na to, da je uporabnik pred zaslonom.
-2. **Priprava konteksta.** Iz koledarja in CRM-ja pobere datum, udeležence in
-   **potrjen ID stranke**. To je pomembna podrobnost: stranke ne identificira
-   model iz besedila, ampak deterministično ujemanje po e-poštni domeni
-   udeležencev. Model nikoli ne ugiba, v čigav zapis piše.
-3. **Ekstrakcija.** En klic Clauda z vsiljeno JSON shemo vrne povzetek, zahteve,
-   odločitve, naloge z lastniki in roki, tveganja, komercialne signale, osnutek
-   e-pošte in seznam nejasnosti.
-4. **Kontrole.** Determinističen sloj brez AI-ja: preveri citate, roke, lastnike,
-   pragove zaupanja. Rezultat je razvrstitev na `BLOCK` / `REVIEW` / `INFO`.
-5. **Potrditev.** Svetovalec dobi v Slacku že izpolnjen paket z označenimi
-   spornimi mesti in gumbi `Potrdi` / `Uredi` / `Zavrni`. Cilj je 30–60 sekund.
-6. **Zapis.** Po potrditvi gre zapis o sestanku in naloge v CRM preko API-ja,
-   follow-up pa se shrani **kot osnutek** v svetovalčev poštni predal. Sistem
-   e-pošte ne pošlje sam.
+1. **Prožilec.** Sestanek se konča in orodje za zapisovanje, karkoli podjetje že
+   uporablja, preko webhooka javi, da je transkript pripravljen. Od tu naprej
+   vse teče asinhrono v vrsti. Nič ne sme biti odvisno od tega, ali je takrat
+   kdo pred zaslonom.
+2. **Priprava konteksta.** Datum, udeležence in ID stranke poberemo iz koledarja
+   in CRM-ja, ne iz besedila. To se zdi podrobnost, pa ni: stranko ujamemo po
+   e-poštni domeni udeležencev, tako da model nikoli ne odloča, v čigav zapis
+   pišemo.
+3. **Ekstrakcija.** En sam klic modela z vsiljeno JSON shemo. Ven pride povzetek,
+   zahteve stranke, odločitve, naloge z lastniki in roki, tveganja, komercialni
+   signali, osnutek e-pošte in seznam stvari, ki modelu niso bile jasne.
+4. **Kontrole.** Sloj navadne kode brez AI-ja, ki preveri citate, roke, lastnike
+   in pragove zaupanja. Vsaka ugotovitev dobi eno od treh stopenj: `BLOCK`,
+   `REVIEW`, `INFO`.
+5. **Potrditev.** Svetovalec dobi v Slacku že izpolnjen paket, s posebej
+   označenimi mesti, ki so padla na kontrolah, in tremi gumbi. Računam na pol
+   minute do minute dela. Če bo trajalo dlje, se tega ljudje ne bodo držali in
+   smo tam, kjer smo bili.
+6. **Zapis.** Zapis o sestanku in naloge gredo v CRM preko API-ja, follow-up pa
+   se shrani kot osnutek v svetovalčev poštni predal. Pošlje ga človek. Ne zato,
+   ker model ne bi znal napisati spodobnega sporočila, ampak ker je e-pošta
+   stranki edina stvar v celotni verigi, ki je ni mogoče vzeti nazaj.
 
-## 2. Orodja in zakaj
+## 2. Orodja
+
+To je moja izbira, ne edina prava. Pri kombinaciji n8n in Pythona bi razumel
+ugovor, zato jo pojasnim pod tabelo.
 
 | Plast | Izbira | Razlog |
 |---|---|---|
-| Transkripcija | obstoječe orodje za sestanke (Teams/Zoom/Fireflies) | To je rešen problem. Lasten Whisper le, če podatki ne smejo iz hiše. |
-| Orkestracija | **n8n** (self-hosted) | Vizualen potek, vgrajeni retry in webhooki, in — bistveno — ne-razvijalec v podjetju lahko kasneje sam popravi prompt ali doda korak. Če bi bila prioriteta popoln nadzor, bi bila alternativa Python + Temporal; n8n je hitrejši do vrednosti. |
-| Model | **Claude Opus 5** | Structured outputs (API vsili shemo), dobro delo s slovenščino, dovolj velik kontekst za cel transkript. Ceneje: Sonnet 5 za rutinske sestanke, Opus za kompleksne. |
-| Kontrole | navaden Python | Preverjanje citatov in datumov je deterministično opravilo. Za to ni razloga uporabiti AI-ja. |
-| Potrditev | Slack (Block Kit) | Svetovalci so tam. Nova aplikacija pomeni novo vedenje, ki ga ni. |
-| Stanje | Postgres | Vsak sestanek ima status; brez tega ni vidnosti in ni ponovnega zagona. |
+| Transkripcija | obstoječe orodje za sestanke | Teams, Zoom ali Fireflies to že znajo. Lasten Whisper bi imel smisel samo, če posnetki ne smejo iz hiše. |
+| Orkestracija | n8n (self-hosted) | Vizualen potek, vgrajeni webhooki in ponovni poskusi, predvsem pa lahko kasneje kdo, ki ni razvijalec, sam doda korak ali zamenja kanal. Za popoln nadzor bi vzel Python in Temporal, a bi do prve uporabne verzije prišel počasneje. |
+| Model | Claude Opus 5 | Structured outputs, spodobna slovenščina in dovolj velik kontekst, da gre cel transkript notri brez rezanja. Če bi bil strošek problem, bi rutinske sestanke pognal na Sonnetu. |
+| Kontrole | navaden Python | Ali se citat pojavi v besedilu in ali je datum za datumom sestanka, sta vprašanji, ki imata en sam pravilen odgovor. Za to ne rabim modela. |
+| Potrditev | Slack | Svetovalci so tam. Nova aplikacija pomeni novo navado, ki je ni. |
+| Stanje | Postgres | Vsak sestanek ima status. Brez tega ne veš, kaj visi, in ne moreš ničesar pognati še enkrat. |
 
-### Kako se n8n in Python dopolnjujeta
+### Kje je meja med n8n in Pythonom
 
-n8n ni nadomestilo za kodo, ampak ovojnica okoli nje. Meja teče takole:
+Na prvi pogled se podvajata, po mojem pa se ne. n8n sem izbral za vodovod:
+webhook ob koncu sestanka, branje konteksta, vrsta in ponovni poskusi, Slack
+sporočilo z gumbi, čakanje na potrditev, klic nazaj. Python pa za logiko: shemo,
+prompt, klic modela, preverjanje citatov, poslovna pravila, razrešitev imen v
+ID-je, idempotenco in outbox.
 
-- **n8n je vodovod.** Webhook ob koncu sestanka, branje konteksta iz koledarja in
-  CRM-ja, vrsta in ponovni poskusi, Slack sporočilo z gumbi, čakanje na
-  potrditev, klic nazaj.
-- **Python je logika.** Shema, prompt, klic modela preko SDK-ja, preverjanje
-  citatov, poslovna pravila, razrešitev lastnikov in ID-jev, idempotenca, outbox.
-
-V produkciji je prototipov paket izpostavljen kot dve HTTP funkciji, ki ju n8n
-pokliče:
+V produkciji bi bil paket iz prototipa izpostavljen kot dva klica, ki ju n8n
+uporabi:
 
 ```
-POST /extract   transkript + kontekst   ->  izvleček + ugotovitve kontrol
-POST /commit    potrjen izvleček        ->  zapis v CRM + osnutek e-pošte
+POST /extract   transkript + kontekst  ->  izvleček + ugotovitve kontrol
+POST /commit    potrjen izvleček       ->  zapis v CRM + osnutek e-pošte
 ```
 
-Razlog za tako razmejitev je praktičen. Prompt in kontrole je treba verzionirati,
-pokriti z eval setom in pregledati v code reviewju — klikanje po vizualnem
-urejevalniku tega ne prenese. Vodovod pa je ravno tisto, kar se v podjetju
-najpogosteje spreminja (drug kanal za potrditev, dodatno polje, drug prejemnik),
-in prav je, da za to ni treba razvijalca.
+Meja teče tam, kjer teče razlika v tem, kako se stvari spreminjajo. Prompt in
+kontrole je treba verzionirati, pokriti s testi in pregledati, preden gredo v
+produkcijo, česar v vizualnem urejevalniku ni mogoče početi resno. Vodovod pa se
+spreminja pogosto in navadno tako, da za to ne bi smel biti potreben razvijalec:
+drug kanal za potrditev, dodatno polje, drug prejemnik.
 
-## 3. Kako AI dobi strukturo iz nestrukturiranega besedila
+## 3. Ekstrakcija in shema
 
-Ključna izbira je **structured outputs**: shemo podamo API-ju, ta pa jamči, da
-bo odgovor veljaven JSON z zahtevanimi polji in tipi. S tem odpade cel razred
-napak (manjkajoča polja, JSON v markdownu, napačni tipi) in ostane samo še
-vsebinsko preverjanje.
+Namesto da bi model prosil za JSON in potem upal, mu shemo vsilimo preko API-ja.
+Odgovor je s tem zagotovo veljaven JSON s pravimi polji in tipi. Sliši se kot
+malenkost, v praksi pa odpade cel razred sitnosti: manjkajoča polja, JSON zavit
+v markdown, niz tam, kjer pričakuješ število.
 
 ```python
 response = client.messages.parse(
@@ -108,22 +121,28 @@ response = client.messages.parse(
 record = response.parsed_output      # validiran objekt, ne niz
 ```
 
-Bistvo prompta (celoten v [`prototype/extract.py`](prototype/extract.py)):
+Prompt je krajši, kot sem pričakoval. Večino dela opravi shema, prompt pa skrbi
+predvsem za to, da model ne zapolnjuje praznin (celoten je v
+[`prototype/extract.py`](prototype/extract.py)):
 
 > Si natančen analitik sestankov. Tvoja naloga je **ekstrakcija, ne
 > interpretacija**.
 > 1. Uporabljaj izključno informacije iz transkripta.
 > 2. Če podatka ni, vrni `null` ali prazen seznam. **Prazno polje je pravilen
 >    odgovor; izmišljen podatek je najhujša možna napaka.**
-> 3. Vsako trditev podpri z `evidence.quote` — dobesednim odlomkom, kopiranim
+> 3. Vsako trditev podpri z `evidence.quote`, dobesednim odlomkom, kopiranim
 >    znak za znak, dolgim vsaj 25 znakov.
 > 4. Odgovorno osebo navedi samo, če je bila izrecno določena. »Nekdo bo
 >    pogledal« ni odgovorna oseba.
 > 5. Roke pretvori v absolutne datume glede na datum sestanka. Ohlapnih rokov ne
->    ugibaj — pusti `null` in dodaj opombo v `unclear_points`.
+>    ugibaj, pusti `null` in dodaj opombo v `unclear_points`.
 > 6. Zneskov in imen ne zaokrožuj in ne popravljaj.
 
-Izsek sheme — cela je v [`prototype/models.py`](prototype/models.py):
+Drugo točko sem moral napisati dvakrat. V prvem osnutku je pisalo nekaj v smislu
+»če nisi prepričan, podaj najboljšo oceno«, kar je pri tej nalogi natanko
+narobe. Model, ki ocenjuje, bo ocenil tudi rok, ki ga nihče ni izrekel.
+
+Izsek iz strukture, celota je v [`prototype/models.py`](prototype/models.py):
 
 ```json
 {
@@ -141,98 +160,147 @@ Izsek sheme — cela je v [`prototype/models.py`](prototype/models.py):
 }
 ```
 
-Polji `evidence` in `unclear_points` sta srce rešitve. Nista okras — sta vhod za
-naslednji korak.
+Polji `evidence` in `unclear_points` nista tam zaradi lepšega. Prvo uporabi
+naslednji korak, drugo pa pride svetovalcu pred oči.
 
-## 4. Zapis v poslovni sistem
+## 4. Zapis preko API-ja
 
-Po potrditvi dva klica: `POST /v1/accounts/{id}/meeting-notes` in `POST /v1/tasks`
-za vsako nalogo. Trije detajli, ki odločajo, ali bo to zdržalo produkcijo:
+Po potrditvi gresta ven dva klica, `POST /v1/accounts/{id}/meeting-notes` in
+`POST /v1/tasks` za vsako nalogo. Bolj kot to, kaj v njiju je, se mi zdi
+zanimivo, česa ni.
 
-- **Lastnika naloge razreši sistem, ne model.** Model vrne ime, sistem ga ujame
-  v kadrovskem imeniku in šele takrat nastane `owner_id`. Model ID-ja nikoli ne
-  napiše. Enako velja za ID stranke in šifrante statusov.
-- **Idempotenčni ključ** = hash(`meeting_id` + tip + vsebina). Ponovni poskus po
-  timeoutu vrne prvotni zapis namesto podvojene naloge. V prototipu spoštuje to
-  tudi lažni CRM.
-- **Sledljivost.** Vsak zapis nosi `transcript_sha256`, verzijo prompta, model in
-  e-pošto potrjevalca. Čez tri mesece se da za katerokoli nalogo ugotoviti, iz
-  česa je nastala in kdo jo je potrdil.
+Model ne napiše nobenega ID-ja. Vrne ime, recimo »Marko Zupan«, sistem pa ga
+poišče v kadrovskem imeniku in šele takrat nastane `owner_id`. Isto velja za ID
+stranke in za šifrante statusov. Če imena v imeniku ni, naloga ne gre skozi,
+ampak gre na pregled, skupaj s predlogom najbližjega ujemanja.
 
-Naloge, katerih lastnik je na strani stranke, ostanejo v zapisu o sestanku in se
-ne odpirajo kot interni taski.
+Vsak POST nosi idempotenčni ključ, ki je hash sestanka, tipa zapisa in vsebine.
+Brez tega je vsak timeout potencialna podvojena naloga, in ravno timeouti so
+tisto, kar se v praksi dogaja najpogosteje.
 
-## 5. Kako preprečimo napačne ali izmišljene podatke
+Vsak zapis nosi še sha256 transkripta, verzijo prompta, ime modela in e-pošto
+tistega, ki ga je potrdil. Čez tri mesece, ko bo kdo vprašal, od kod je prišla
+neka naloga, bo to edini način, da mu odgovoriš.
 
-Pet plasti, od najcenejše do najdražje:
+Naloge, katerih lastnik je pri stranki, ostanejo zapisane v zapisu o sestanku in
+se ne odpirajo kot interni taski.
 
-| # | Kontrola | Kaj ujame |
-|---|---|---|
-| 1 | **Shema (structured outputs)** | Napačna oblika, manjkajoča polja, izmišljene vrednosti enumov. Nemogoče po konstrukciji. |
-| 2 | **Preverjanje citatov** | Vsak `evidence.quote` mora biti v transkriptu (normalizirano ujemanje, prag 0.90). Najmočnejša kontrola: model, ki si izmisli nalogo, si mora izmisliti tudi citat — in ta pade. |
-| 3 | **Poslovna pravila** | Lastnik obstaja v imeniku; rok ni pred sestankom in ni več kot leto naprej; datum je veljaven; komercialni podatek ima citat. |
-| 4 | **Pragovi in usmerjanje** | `overall_confidence < 0.75`, naloga brez lastnika ali roka, vsak komercialni podatek → obvezen človeški pregled. |
-| 5 | **Človeška potrditev** | Obvezna pred zapisom v CRM in pred vsakim stikom s stranko. Nepogojno. |
+## 5. Kontrole
 
-Razvrstitev po resnosti: `BLOCK` (ne gre skozi), `REVIEW` (samo s potrditvijo),
-`INFO` (opozorilo v pregledu).
+To je del, ki mi je vzel največ časa, in po mojem tudi najbolj zanimiv del
+naloge.
 
-V prototipu je to pognano na namerno pokvarjenem izvlečku z izmišljeno nalogo
-»podpis pogodbe za 45.000 EUR« — kontrole jo ujamejo štirikrat:
+Splošen nasvet se glasi »dodaj človeka v zanko«, kar drži, samo po sebi pa ne
+zadošča. Če človeku pokažeš lepo oblikovan povzetek s petnajstimi postavkami,
+jih bo po tretjem sestanku potrdil, ne da bi jih prebral. Zato mora sistem sam
+znati povedati, kateri postavki ne zaupa, in človeka usmeriti tja.
+
+Pet plasti, od najcenejše proti najdražji:
+
+| Plast | Kaj ujame |
+|---|---|
+| Shema (structured outputs) | Napačno obliko, manjkajoča polja, izmišljene vrednosti šifrantov. Po konstrukciji nemogoče. |
+| Preverjanje citatov | Vsak `evidence.quote` mora biti v transkriptu, ujemanje je normalizirano s pragom 0,90. |
+| Poslovna pravila | Lastnik obstaja v imeniku. Rok ni pred sestankom in ni več kot leto naprej. Datum je veljaven. Komercialni podatek ima citat. |
+| Pragovi | `overall_confidence < 0,75`, naloga brez lastnika ali roka in vsak komercialni podatek gredo obvezno na pregled. |
+| Človeška potrditev | Obvezna pred zapisom v CRM in pred vsakim stikom s stranko. |
+
+Jedro je druga vrstica. Model, ki si izmisli nalogo, si mora izmisliti tudi
+citat, ta pa pade na navadnem iskanju po besedilu. Kontrola ne stane nič in ne
+uporablja AI-ja, kar mi je pomembno: idejo, da bi halucinacije lovil z drugim
+klicem modela, sem zavrgel, ker problem samo premakne za korak naprej.
+
+### Preizkus
+
+Da to ni ostalo na papirju, sem v izvleček podtaknil nalogo, ki je v transkriptu
+ni, podpis pogodbe za 45.000 evrov. Kontrole jo ujamejo štirikrat:
 
 ```
 [BLOCK ] action_items[4]: Citata ni v transkriptu (možna halucinacija): 'Strinjamo se s ceno…'
 [BLOCK ] action_items[4]: Odgovorne osebe 'Janez Kranjc' ni v imeniku zaposlenih.
 [BLOCK ] action_items[4]: Rok 2026-09-01 je pred datumom sestanka 2026-09-08.
 [BLOCK ] commercial:      Citata ni v transkriptu (možna halucinacija): 'Celotna implementacija…'
+[REVIEW] overall_confidence: Nizka zanesljivost izvlečka (0.62).
 === Status: blocked ===
 ```
 
-**Kar bi dodal pred produkcijo:** eval set 30–50 zgodovinskih transkriptov z
-ročno označenimi pravilnimi izhodi, ki teče ob vsaki spremembi prompta. Brez
-tega je vsaka sprememba prompta ugibanje. Merim dvoje: koliko pravih nalog je
-sistem zgrešil in koliko izmišljenih je spustil skozi — drugo je dražje.
+Kar tu manjka in bi bilo prvo, kar bi naredil naslednje: eval set tridesetih do
+petdesetih resničnih transkriptov z ročno označenimi pravilnimi izhodi, ki teče
+ob vsaki spremembi prompta. Brez tega je vsako popravljanje prompta ugibanje, ki
+se sliši prepričljivo. Zanimata me dve številki: koliko pravih nalog sistem
+zgreši in koliko izmišljenih spusti skozi. Druga je dražja, ker prvo človek
+opazi sam.
 
-## 6. Kaj, če kakšen sistem ne dela
+## 6. Odpornost na izpade
 
-Vse odpornost izhaja iz ene odločitve: **transkript je izvorna resnica, vsak
-korak pa je ponovljiv iz shranjenega stanja.** Zato noben izpad ne pomeni
-ponovnega ročnega dela.
+Vse skupaj stoji na eni odločitvi: transkript je izvorna resnica, vsak korak pa
+se da ponoviti iz shranjenega stanja. Dokler to drži, noben izpad ne pomeni, da
+mora kdo karkoli delati še enkrat ročno.
 
 | Odpove | Odziv |
 |---|---|
-| **Model (API)** | SDK sam ponovi ob 429/5xx; ob daljšem izpadu gre sestanek v vrsto in se obdela kasneje. Zamuda ni škoda — svetovalec dobi obvestilo. |
-| **CRM API** | Do 5 poskusov z eksponentnim odlogom + jitter, samo za prehodne napake (429, 5xx, timeout). Nato **outbox**: potrjen zapis gre na disk s statusom `pending` in se odda, ko je CRM spet gor. Idempotenčni ključi poskrbijo, da se nič ne podvoji. |
-| **CRM zavrne (4xx)** | Ponavljanje nima smisla — gre v dead-letter in svetovalcu z razlogom. |
-| **Slack** | Nadomestni kanal je e-pošta; sestanek ostane v stanju `awaiting_approval`, dokler ga nekdo ne obdela. |
-| **Transkripcija** | Nič ni izgubljeno: posnetek ostane, obdelava se ponovi. |
+| Model (API) | SDK sam ponovi ob 429 in 5xx. Ob daljšem izpadu gre sestanek v vrsto in se obdela kasneje. Zamuda pri tej nalogi ni škoda, samo svetovalec mora vedeti, da zapisnik še ni pripravljen. |
+| CRM API | Do pet poskusov z eksponentnim odlogom in jitterjem, in to samo za napake, ki so lahko prehodne (429, 5xx, timeout). Če tudi zadnji poskus pade, gre potrjen zapis v outbox na disk in se odda, ko je CRM spet dosegljiv. Idempotenčni ključi poskrbijo, da se nič ne podvoji. |
+| CRM zavrne (4xx) | Ponavljanje nima smisla, ker se ne bo izšlo. Zapis gre v dead-letter in svetovalcu, z navedenim razlogom. |
+| Slack | Nadomestni kanal je e-pošta. Sestanek ostane v stanju `awaiting_approval`, dokler ga kdo ne obdela. |
+| Transkripcija | Nič ni izgubljeno, posnetek ostane in obdelavo pač ponovimo. |
 
-Preizkušeno v prototipu — pipeline ob ugasnjenem CRM-ju odloži tri zapise v
-outbox, po ponovnem zagonu (celo z 40 % napak) pa jih vse odda brez podvojitev.
+Preizkusil sem samo primer s CRM-jem, ker je edini, ki sem ga znal verodostojno
+simulirati. Ob ugasnjenem strežniku pipeline odloži tri zapise v outbox, po
+ponovnem zagonu, s štiridesetimi odstotki namerno vrnjenih napak, pa jih odda
+vse in nobenega ne podvoji.
 
-Poleg tega: **vsak sestanek ima status** (`extracted` → `awaiting_approval` →
-`written` / `blocked` / `partially_written`), kar pomeni, da se da kadarkoli
-vprašati »kaj visi in zakaj«. Sestanek, ki več kot 48 ur čaka na potrditev,
-sproži opomnik — najpogostejši tihi odpoved ni tehnična, ampak da nekdo pozabi
-klikniti `Potrdi`.
+Zadnja stvar, ki se je na začetku nisem spomnil. Vsak sestanek ima status, od
+`extracted` preko `awaiting_approval` do `written`, `blocked` ali
+`partially_written`, tako da se da kadarkoli vprašati, kaj visi in zakaj.
+Najpogostejša odpoved takih sistemov po mojem sploh ni tehnična. Je ta, da nekdo
+pozabi klikniti *Potrdi* in tega nihče ne opazi, zato sestanek, ki čaka več kot
+48 ur, sproži opomnik.
 
-## Kaj bi naredil naslednje
+## Bonus: prototip
 
-1. Eval set na resničnih transkriptih — brez meritve je vse ostalo mnenje.
-2. Dva tedna v načinu »AI predlaga, človek vedno potrdi«, z merjenjem, koliko
-   popravkov je dejansko potrebnih.
-3. Šele če je delež popravkov nizek, bi za nizko tvegane dele (notranji povzetek,
-   naloge z jasnim lastnikom in rokom) razmislil o samodejni potrditvi.
-   Komercialni podatki in komunikacija s stranko ostanejo pri človeku vedno.
+Prototip je Python paket z eno samo zunanjo odvisnostjo. Napisal sem ga, ker se
+mi zdi, da se o kontrolah proti halucinacijam veliko lažje pogovarjamo, če jih
+je mogoče pognati. Vsebuje shemo, prompt, kontrolno plast, orkestrator s CLI-jem,
+odporen HTTP klient in lažni CRM, ki zna simulirati izpade. To je tisti del, ki
+bi v produkciji tekel za n8n-ovima klicema `/extract` in `/commit`.
+
+Pognal sem tri scenarije:
+
+| Scenarij | Rezultat |
+|---|---|
+| Normalen potek | Zapis o sestanku in dve nalogi v CRM. Ponoven `approve` ne ustvari dvojnikov. |
+| Halucinacija | Štiri `BLOCK` ugotovitve, status `blocked`, v CRM ne gre nič. |
+| CRM ne dela | Trije poskusi z odlogom, nato outbox. Po ponovnem zagonu vse oddano, nič podvojeno. |
+
+Česa ni: transkripcije zvoka, prave Slack integracije, avtentikacije in baze,
+saj je stanje shranjeno kar v JSON datotekah. Prav tako ni pognan klic na pravi
+API, ker v okolju, kjer sem delal, nisem imel ključa. Koda sledi dokumentirani
+uporabi SDK-ja, vse ostalo pa teče na shranjenem odgovoru modela. To pišem zato,
+ker se mi zdi pošteno ločiti, kaj je preverjeno in kaj ne.
+
+### Kaj bi naredil naslednje
+
+1. Eval set na resničnih transkriptih, ker je brez meritve vse ostalo mnenje.
+2. Dva tedna v načinu, kjer AI predlaga in človek vedno potrdi, z merjenjem,
+   koliko popravkov je v resnici potrebnih. Šele ta številka pove, ali se stvar
+   splača.
+3. Če je delež popravkov nizek, bi za nizko tvegane dele, recimo notranji
+   povzetek in naloge z jasnim lastnikom in rokom, razmislil o samodejni
+   potrditvi. Komercialni podatki in komunikacija s stranko po mojem ostanejo
+   pri človeku tudi potem.
 
 ---
 
 ### Opomba o uporabi AI orodij
 
-Nalogo sem reševal s Claude Code. Uporabno je bilo predvsem za hitro pisanje
-prototipa in kode brez zunanjih odvisnosti. Sam sem določil zasnovo — zlasti
-idejo, da vsak podatek nosi dobesedni citat, ki ga nato preverimo programsko, in
-strogo ločnico med tem, kar sme zapisati model (imena, besedilo), in tem, kar
-razreši sistem (ID-ji, šifranti). Prvi osnutek prompta je bil preveč popustljiv
-(»če nisi prepričan, oceni«), kar je natanko nasprotje tega, kar želimo — zato
-je zdaj v pravilih izrecno, da je prazno polje pravilen odgovor.
+Nalogo sem delal s Claude Code. Največ mi je pomagal pri pisanju prototipa, se
+pravi pri delu, kjer sem vnaprej vedel, kaj hočem, in me je zanimala samo
+hitrost. Zasnovo sem določil sam, predvsem tisti del s citati in ločnico med
+tem, kar sme napisati model, in tem, kar mora razrešiti sistem.
+
+Kjer je bilo treba presojati, prvega predloga nisem vzel. Prvi osnutek prompta
+je bil preveč popustljiv in bi pri tej nalogi delal natanko narobe, idejo o
+preverjanju halucinacij z drugim klicem modela pa sem zavrgel in jo nadomestil z
+navadno primerjavo besedila. Se mi zdi, da je pri teh orodjih to bistveno:
+uporabna so ravno toliko, kolikor znaš presoditi, kaj ti vrnejo.
